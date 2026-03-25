@@ -1,20 +1,12 @@
-import type { STTResult, STTProvider } from "./types";
+import type { STTResult } from "./types";
 import { groqTranscribe } from "./groq-whisper";
-import { clovaTranscribe } from "./clova-speech";
 
 /**
- * STT 어댑터 — Groq/Clova를 동일 인터페이스로 추상화
+ * STT 어댑터 — Groq Whisper 사용
  */
 export async function transcribe(
   audioBuffer: Buffer,
-  filename: string,
-  provider: STTProvider
+  filename: string
 ): Promise<STTResult> {
-  switch (provider) {
-    case "clova":
-      return clovaTranscribe(audioBuffer, filename);
-    case "groq":
-    default:
-      return groqTranscribe(audioBuffer, filename);
-  }
+  return groqTranscribe(audioBuffer, filename);
 }

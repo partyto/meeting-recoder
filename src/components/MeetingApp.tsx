@@ -14,7 +14,6 @@ export default function MeetingApp() {
   const [title, setTitle] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("record");
   const [useConfluence, setUseConfluence] = useState(false);
-  const [useDiarization, setUseDiarization] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [jobId, setJobId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -92,7 +91,6 @@ export default function MeetingApp() {
           title: title || `회의록 ${new Date().toLocaleString("ko-KR")}`,
           sourceType,
           useConfluence,
-          useDiarization: activeTab !== "text" && useDiarization,
         }),
       });
 
@@ -164,21 +162,6 @@ export default function MeetingApp() {
 
         {/* 옵션 */}
         <div className="flex flex-col gap-3">
-          {activeTab !== "text" && (
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={useDiarization}
-                onChange={(e) => setUseDiarization(e.target.checked)}
-                disabled={!!isProcessing}
-                className="rounded"
-              />
-              <span>
-                화자 분리 사용{" "}
-                <span className="text-gray-400">(Clova Speech — 월 90분 무료)</span>
-              </span>
-            </label>
-          )}
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"

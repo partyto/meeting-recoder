@@ -36,9 +36,6 @@ export interface Job {
   sourceType: "text" | "audio" | "record";
   blobUrl?: string;
   useConfluence: boolean;
-  useDiarization: boolean;
   createdAt: string;
   updatedAt: string;
 }
-
-export type STTProvider = "groq" | "clova";

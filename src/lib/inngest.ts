@@ -3,7 +3,6 @@ import { transcribe } from "./stt-adapter";
 import { generateMinutes } from "./claude";
 import { uploadToConfluence } from "./confluence";
 import { getJob, setJobStatus, addLog, updateJob } from "./job-store";
-import type { STTProvider } from "./types";
 
 export const inngest = new Inngest({ id: "meeting-minutes" });
 
@@ -60,16 +59,11 @@ export const processJob = inngest.createFunction(
 
       // Step 3: STT 수행
       const sttResult = await step.run("transcribe", async () => {
-        const provider: STTProvider = job.useDiarization ? "clova" : "groq";
-        await addLog(
-          jobId,
-          `음성 인식 중... (${provider === "clova" ? "Clova Speech — 화자분리" : "Groq Whisper"})`
-        );
+        await addLog(jobId, "음성 인식 중... (Groq Whisper)");
         const audioBuffer = Buffer.from(audioData!);
         const result = await transcribe(
           audioBuffer,
-          job.blobUrl?.split("/").pop() ?? "audio.webm",
-          provider
+          job.blobUrl?.split("/").pop() ?? "audio.webm"
         );
         await addLog(
           jobId,

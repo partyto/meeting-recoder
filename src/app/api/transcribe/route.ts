@@ -15,7 +15,6 @@ export async function POST(request: NextRequest) {
       title,
       sourceType,
       useConfluence = false,
-      useDiarization = false,
     } = body;
 
     if (!blobUrl) {
@@ -34,7 +33,6 @@ export async function POST(request: NextRequest) {
       sourceType: sourceType || "audio",
       blobUrl,
       useConfluence,
-      useDiarization,
     });
 
     // Inngest 이벤트 발행 (백그라운드 처리 시작)
