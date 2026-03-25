@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       size: file.size,
     });
   } catch (error) {
+    console.error("[upload] error:", error);
     const message =
       error instanceof Error ? error.message : "업로드 실패";
     return NextResponse.json({ error: message }, { status: 500 });
