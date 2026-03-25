@@ -32,11 +32,15 @@ export const processJob = inngest.createFunction(
     let audioData: number[] | null = null;
     let fullText = "";
 
+    const blobHeaders: HeadersInit = process.env.BLOB_READ_WRITE_TOKEN
+      ? { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` }
+      : {};
+
     if (job.sourceType === "text") {
       fullText = await step.run("read-text", async () => {
         await setJobStatus(jobId, "transcribing", "텍스트 파일 읽는 중...");
         if (!job.blobUrl) throw new Error("텍스트 URL이 없습니다.");
-        const resp = await fetch(job.blobUrl);
+        const resp = await fetch(job.blobUrl, { headers: blobHeaders });
         const text = await resp.text();
         await addLog(jobId, `텍스트 로드 완료 (${text.length}자)`);
         return text;
@@ -45,7 +49,7 @@ export const processJob = inngest.createFunction(
       audioData = await step.run("download-audio", async () => {
         await setJobStatus(jobId, "transcribing", "오디오 파일 다운로드 중...");
         if (!job.blobUrl) throw new Error("오디오 URL이 없습니다.");
-        const resp = await fetch(job.blobUrl);
+        const resp = await fetch(job.blobUrl, { headers: blobHeaders });
         const arrayBuffer = await resp.arrayBuffer();
         await addLog(
           jobId,

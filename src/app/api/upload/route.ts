@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     // Vercel Blob에 업로드
     const blob = await put(file.name, file, {
-      access: "public",
+      access: "private",
     });
 
     return NextResponse.json({
