@@ -18,7 +18,7 @@ export async function generateMinutes(
 
   const message = await getAnthropic().messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 16000,
+    max_tokens: 4096,
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -39,7 +39,7 @@ export async function* generateMinutesStream(
 
   const stream = getAnthropic().messages.stream({
     model: "claude-sonnet-4-6",
-    max_tokens: 16000,
+    max_tokens: 4096,
     messages: [{ role: "user", content: prompt }],
   });
 
