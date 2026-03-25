@@ -2,9 +2,9 @@ import Anthropic from "@anthropic-ai/sdk";
 import { buildMinutesPrompt, cleanHtmlResponse } from "./prompts";
 import type { TranscriptSegment } from "./types";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+function getAnthropic() {
+  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+}
 
 /**
  * Claude API로 회의록 HTML 생성
@@ -16,7 +16,7 @@ export async function generateMinutes(
 ): Promise<string> {
   const prompt = buildMinutesPrompt(transcript, title, segments);
 
-  const message = await anthropic.messages.create({
+  const message = await getAnthropic().messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 16000,
     messages: [{ role: "user", content: prompt }],
@@ -37,7 +37,7 @@ export async function* generateMinutesStream(
 ): AsyncGenerator<string> {
   const prompt = buildMinutesPrompt(transcript, title, segments);
 
-  const stream = anthropic.messages.stream({
+  const stream = getAnthropic().messages.stream({
     model: "claude-sonnet-4-6",
     max_tokens: 16000,
     messages: [{ role: "user", content: prompt }],

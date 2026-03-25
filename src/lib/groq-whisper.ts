@@ -1,8 +1,6 @@
 import Groq from "groq-sdk";
 import type { STTResult, TranscriptSegment } from "./types";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
 /**
  * Groq Whisper API로 한국어 STT 수행 (무료)
  * 화자분리 미지원 — 단일 텍스트 스트림 반환
@@ -15,6 +13,7 @@ export async function groqTranscribe(
     type: getMimeType(filename),
   });
 
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const response = await groq.audio.transcriptions.create({
     file,
     model: "whisper-large-v3",
