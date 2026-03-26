@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { upload } from "@vercel/blob/client";
 import { useJobStatus } from "@/hooks/useJobStatus";
 import InputTabs from "./InputTabs";
 import Recorder from "./Recorder";
@@ -48,12 +49,12 @@ export default function MeetingApp() {
           setIsSubmitting(false);
           return;
         }
-        const formData = new FormData();
-        formData.append("file", recordingBlobRef.current, `recording_${Date.now()}.webm`);
-        const uploadResp = await fetch("/api/upload", { method: "POST", body: formData });
-        if (!uploadResp.ok) throw new Error("녹음 파일 업로드 실패");
-        const uploadData = await uploadResp.json();
-        blobUrl = uploadData.blobUrl;
+        const filename = `recording_${Date.now()}.webm`;
+        const blob = await upload(filename, recordingBlobRef.current, {
+          access: "private",
+          handleUploadUrl: "/api/upload",
+        });
+        blobUrl = blob.url;
         sourceType = "record";
       } else {
         if (!fileRef.current) {
@@ -61,12 +62,11 @@ export default function MeetingApp() {
           setIsSubmitting(false);
           return;
         }
-        const formData = new FormData();
-        formData.append("file", fileRef.current);
-        const uploadResp = await fetch("/api/upload", { method: "POST", body: formData });
-        if (!uploadResp.ok) throw new Error("파일 업로드 실패");
-        const uploadData = await uploadResp.json();
-        blobUrl = uploadData.blobUrl;
+        const blob = await upload(fileRef.current.name, fileRef.current, {
+          access: "private",
+          handleUploadUrl: "/api/upload",
+        });
+        blobUrl = blob.url;
         sourceType = activeTab;
       }
 

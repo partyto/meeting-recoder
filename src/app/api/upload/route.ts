@@ -1,35 +1,29 @@
+import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 
 export const runtime = "nodejs";
 
 /**
- * POST /api/upload — 오디오/텍스트 파일을 Vercel Blob에 업로드
+ * POST /api/upload — 클라이언트 사이드 업로드 토큰 발급
+ * 파일은 브라우저에서 Vercel Blob으로 직접 업로드 (4.5MB 함수 한도 우회)
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const body = (await request.json()) as HandleUploadBody;
   try {
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-
-    if (!file) {
-      return NextResponse.json({ error: "파일이 없습니다." }, { status: 400 });
-    }
-
-    // Vercel Blob에 업로드
-    const blob = await put(file.name, file, {
-      access: "private",
-      addRandomSuffix: true,
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      onBeforeGenerateToken: async () => ({
+        access: "private",
+        addRandomSuffix: true,
+      }),
+      onUploadCompleted: async ({ blob }) => {
+        console.log("[upload] completed:", blob.url);
+      },
     });
-
-    return NextResponse.json({
-      blobUrl: blob.url,
-      filename: file.name,
-      size: file.size,
-    });
+    return NextResponse.json(jsonResponse);
   } catch (error) {
     console.error("[upload] error:", error);
-    const message =
-      error instanceof Error ? error.message : "업로드 실패";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: String(error) }, { status: 400 });
   }
 }
