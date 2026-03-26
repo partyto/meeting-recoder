@@ -41,74 +41,149 @@ export default function Recorder({
   };
 
   return (
-    <div className="text-center py-6 space-y-4">
+    <div className="flex flex-col items-center py-8 gap-6">
       {/* 녹음 버튼 */}
-      <button
-        onClick={handleToggle}
-        disabled={disabled && !isRecording}
-        className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto transition-all ${
-          isRecording
-            ? "bg-red-500 hover:bg-red-600 animate-pulse-recording"
-            : "bg-blue-600 hover:bg-blue-700"
-        } ${disabled && !isRecording ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        {isRecording ? (
-          <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <rect x="6" y="6" width="12" height="12" rx="2" />
-          </svg>
-        ) : (
-          <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="6" />
-          </svg>
-        )}
-      </button>
+      <div className="relative flex items-center justify-center">
+        {/* 외부 링 */}
+        <div
+          className="absolute rounded-full transition-all duration-500"
+          style={{
+            width: isRecording ? '110px' : '96px',
+            height: isRecording ? '110px' : '96px',
+            background: isRecording
+              ? 'rgba(239,68,68,0.08)'
+              : 'rgba(96,165,250,0.06)',
+            border: isRecording
+              ? '1px solid rgba(239,68,68,0.2)'
+              : '1px solid rgba(96,165,250,0.15)',
+          }}
+        />
+
+        {/* 버튼 */}
+        <button
+          onClick={handleToggle}
+          disabled={disabled && !isRecording}
+          className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 ${
+            isRecording ? 'animate-pulse-recording' : ''
+          }`}
+          style={{
+            background: isRecording
+              ? 'rgba(239,68,68,0.15)'
+              : 'rgba(96,165,250,0.12)',
+            border: isRecording
+              ? '1.5px solid rgba(239,68,68,0.4)'
+              : '1.5px solid rgba(96,165,250,0.3)',
+            boxShadow: isRecording
+              ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 0 24px rgba(239,68,68,0.15)'
+              : 'inset 0 1px 0 rgba(255,255,255,0.08), 0 0 24px rgba(96,165,250,0.1)',
+            cursor: disabled && !isRecording ? 'not-allowed' : 'pointer',
+            opacity: disabled && !isRecording ? 0.4 : 1,
+            transform: 'scale(1)',
+          }}
+          onMouseEnter={(e) => {
+            if (!disabled || isRecording) e.currentTarget.style.transform = 'scale(1.04)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+          onMouseDown={(e) => {
+            if (!disabled || isRecording) e.currentTarget.style.transform = 'scale(0.96)';
+          }}
+          onMouseUp={(e) => {
+            if (!disabled || isRecording) e.currentTarget.style.transform = 'scale(1.04)';
+          }}
+        >
+          {isRecording ? (
+            /* 정지 아이콘 */
+            <div
+              className="w-7 h-7 rounded-lg"
+              style={{ background: '#EF4444' }}
+            />
+          ) : (
+            /* 마이크 아이콘 */
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"
+                fill="var(--accent)"
+              />
+              <path
+                d="M19 10a7 7 0 0 1-14 0M12 19v3M9 22h6"
+                stroke="var(--accent)"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          )}
+        </button>
+      </div>
 
       {/* 상태 텍스트 */}
-      <div>
+      <div className="text-center">
         {isRecording ? (
-          <p className="text-red-500 font-medium">
-            녹음 중 — {formatTime(duration)}
-          </p>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+            <span className="text-sm font-medium" style={{ color: '#FCA5A5' }}>
+              녹음 중 — {formatTime(duration)}
+            </span>
+          </div>
         ) : hasRecording ? (
-          <p className="text-green-600 font-medium">
-            녹음 완료 ({formatTime(duration)})
-          </p>
+          <div className="flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-sm font-medium" style={{ color: '#4ADE80' }}>
+              녹음 완료 — {formatTime(duration)}
+            </span>
+          </div>
         ) : (
-          <p className="text-gray-500">녹음 시작 버튼을 누르세요</p>
+          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            버튼을 눌러 녹음을 시작하세요
+          </span>
         )}
       </div>
 
       {/* 오디오 레벨 미터 */}
       {isRecording && (
-        <div className="flex items-center justify-center gap-0.5">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div
-              key={i}
-              className="w-1.5 rounded-full transition-all duration-75"
-              style={{
-                height: `${Math.max(4, audioLevel * 40 * (1 + Math.sin(i * 0.5)))}px`,
-                backgroundColor:
-                  audioLevel > 0.7
-                    ? "#ef4444"
-                    : audioLevel > 0.3
-                    ? "#f59e0b"
-                    : "#22c55e",
-              }}
-            />
-          ))}
+        <div className="flex items-center justify-center gap-0.5 h-8">
+          {Array.from({ length: 24 }).map((_, i) => {
+            const level = audioLevel * (1 + 0.4 * Math.sin(i * 0.7 + Date.now() / 200));
+            const height = Math.max(3, level * 28);
+            return (
+              <div
+                key={i}
+                className="w-1 rounded-full transition-all duration-75"
+                style={{
+                  height: `${height}px`,
+                  background: audioLevel > 0.7
+                    ? '#F87171'
+                    : audioLevel > 0.35
+                    ? '#FBBF24'
+                    : 'var(--accent)',
+                  opacity: 0.7 + audioLevel * 0.3,
+                }}
+              />
+            );
+          })}
         </div>
       )}
 
       {/* 청크 정보 */}
       {isRecording && chunkCount > 0 && (
-        <p className="text-xs text-gray-400">
+        <span
+          className="text-xs px-2.5 py-1 rounded-full"
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            color: 'var(--text-secondary)',
+            border: '1px solid var(--border)',
+          }}
+        >
           {chunkCount}개 청크 저장됨
-        </p>
+        </span>
       )}
 
       {/* 에러 */}
       {error && (
-        <p className="text-sm text-red-500">{error}</p>
+        <p className="text-sm text-red-400 text-center">{error}</p>
       )}
     </div>
   );
