@@ -17,8 +17,8 @@ export async function generateMinutes(
   const prompt = buildMinutesPrompt(transcript, title, segments);
 
   const completion = await getGroqClient().chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    max_tokens: 4096,
+    model: "llama-3.1-8b-instant",
+    max_tokens: 2048,
     messages: [{ role: "user", content: prompt }],
   });
 
